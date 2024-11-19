@@ -12,6 +12,9 @@ let filterAspectRatio = 1; // Aspect ratio of the filter
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+// Prevent touch events from scrolling the page
+canvas.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
+
 // Upload and draw the base image
 document.getElementById("upload").addEventListener("change", function (event) {
     const file = event.target.files[0];
@@ -54,13 +57,15 @@ function drawCanvas() {
     };
 }
 
-// Mouse events for drag-and-resize functionality
-canvas.addEventListener("mousedown", (event) => {
+// Event handler for starting drag or resize
+function startAction(event) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    const mouseX = clientX - rect.left;
+    const mouseY = clientY - rect.top;
 
-    // Check if mouse is on the resize handle
+    // Check if touch/mouse is on the resize handle
     if (
         mouseX > filterX + filterWidth - 10 &&
         mouseX < filterX + filterWidth &&
@@ -69,7 +74,7 @@ canvas.addEventListener("mousedown", (event) => {
     ) {
         isResizing = true;
     }
-    // Check if mouse is inside the filter for dragging
+    // Check if touch/mouse is inside the filter for dragging
     else if (
         mouseX > filterX &&
         mouseX < filterX + filterWidth &&
@@ -78,16 +83,19 @@ canvas.addEventListener("mousedown", (event) => {
     ) {
         isDragging = true;
     }
-});
+}
 
-canvas.addEventListener("mousemove", (event) => {
+// Event handler for dragging or resizing
+function moveAction(event) {
     if (isDragging || isResizing) {
         const rect = canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        const mouseX = clientX - rect.left;
+        const mouseY = clientY - rect.top;
 
         if (isDragging) {
-            // Move the filter based on mouse position
+            // Move the filter based on touch/mouse position
             filterX = mouseX - filterWidth / 2;
             filterY = mouseY - (filterWidth / filterAspectRatio) / 2;
         } else if (isResizing) {
@@ -100,12 +108,22 @@ canvas.addEventListener("mousemove", (event) => {
         // Redraw the canvas
         drawCanvas();
     }
-});
+}
 
-canvas.addEventListener("mouseup", () => {
+// Event handler for ending drag or resize
+function endAction() {
     isDragging = false;
     isResizing = false;
-});
+}
+
+// Add event listeners for mouse and touch
+canvas.addEventListener("mousedown", startAction);
+canvas.addEventListener("mousemove", moveAction);
+canvas.addEventListener("mouseup", endAction);
+
+canvas.addEventListener("touchstart", startAction);
+canvas.addEventListener("touchmove", moveAction);
+canvas.addEventListener("touchend", endAction);
 
 // Download button functionality
 document.getElementById("download").addEventListener("click", function () {
