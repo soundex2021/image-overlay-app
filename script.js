@@ -17,11 +17,15 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 // Prevent touch events from scrolling the page
-canvas.addEventListener("touchmove", (event) => {
-    if (isDragging || isResizing) {
-        event.preventDefault();
-    }
-}, { passive: false });
+document.body.addEventListener(
+    "touchmove",
+    (event) => {
+        if (isDragging || isResizing) {
+            event.preventDefault();
+        }
+    },
+    { passive: false }
+);
 
 // Upload and draw the base image
 document.getElementById("upload").addEventListener("change", function (event) {
@@ -96,6 +100,9 @@ function startAction(event) {
     ) {
         isDragging = true;
     }
+
+    event.preventDefault(); // Prevent unwanted scrolling
+    event.stopPropagation(); // Prevent bubbling
 }
 
 // Drag or resize
@@ -120,13 +127,17 @@ function moveAction(event) {
 
         // Redraw the canvas
         drawCanvas();
+
+        event.preventDefault(); // Prevent unwanted scrolling
+        event.stopPropagation(); // Prevent bubbling
     }
 }
 
 // End drag or resize
-function endAction() {
+function endAction(event) {
     isDragging = false;
     isResizing = false;
+    event.stopPropagation(); // Prevent bubbling
 }
 
 // Add event listeners for mouse and touch
