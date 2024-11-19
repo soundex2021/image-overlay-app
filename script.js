@@ -1,13 +1,12 @@
 // Variables for dragging and resizing
 let isDragging = false;
 let isResizing = false;
-let startX = 0; // Start position for drag
+let startX = 0; // Start position for drag/resize
 let startY = 0;
 let initialFilterX = 0; // Initial position for drag
 let initialFilterY = 0;
-let initialFilterWidth = 150; // Default width
-let filterWidth = initialFilterWidth;
-let filterHeight = initialFilterWidth;
+let filterWidth = 150; // Default width
+let filterHeight = 150; // Default height
 let filterX = 100; // Initial position of filter
 let filterY = 100;
 let uploadedImage = null;
@@ -18,7 +17,11 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 // Prevent touch events from scrolling the page
-canvas.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
+canvas.addEventListener("touchmove", (event) => {
+    if (isDragging || isResizing) {
+        event.preventDefault();
+    }
+}, { passive: false });
 
 // Upload and draw the base image
 document.getElementById("upload").addEventListener("change", function (event) {
@@ -131,9 +134,18 @@ canvas.addEventListener("mousedown", startAction);
 canvas.addEventListener("mousemove", moveAction);
 canvas.addEventListener("mouseup", endAction);
 
-canvas.addEventListener("touchstart", startAction);
-canvas.addEventListener("touchmove", moveAction);
-canvas.addEventListener("touchend", endAction);
+canvas.addEventListener("touchstart", (event) => {
+    event.stopPropagation();
+    startAction(event);
+});
+canvas.addEventListener("touchmove", (event) => {
+    event.stopPropagation();
+    moveAction(event);
+});
+canvas.addEventListener("touchend", (event) => {
+    event.stopPropagation();
+    endAction(event);
+});
 
 // Download button functionality
 document.getElementById("download").addEventListener("click", function () {
