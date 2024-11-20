@@ -46,7 +46,7 @@ document.getElementById("upload").addEventListener("change", function (event) {
 });
 
 // Function to redraw the canvas
-function drawCanvas() {
+function drawCanvas(showHandle = true) {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -62,9 +62,11 @@ function drawCanvas() {
         filterAspectRatio = filter.naturalWidth / filter.naturalHeight;
         ctx.drawImage(filter, filterX, filterY, filterWidth, filterWidth / filterAspectRatio);
 
-        // Draw resize handle (optional: visual indicator for resizing)
-        ctx.fillStyle = "red";
-        ctx.fillRect(filterX + filterWidth - 10, filterY + (filterWidth / filterAspectRatio) - 10, 10, 10);
+        // Draw resize handle only if showHandle is true
+        if (showHandle) {
+            ctx.fillStyle = "red";
+            ctx.fillRect(filterX + filterWidth - 10, filterY + (filterWidth / filterAspectRatio) - 10, 10, 10);
+        }
     };
 }
 
@@ -160,9 +162,15 @@ canvas.addEventListener("touchend", (event) => {
 
 // Download button functionality
 document.getElementById("download").addEventListener("click", function () {
+    // Temporarily redraw the canvas without the resize handle
+    drawCanvas(false);
+
     // Export the canvas content as an image
     const link = document.createElement("a");
     link.download = "edited-image.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
+
+    // Restore the canvas with the resize handle for further editing
+    drawCanvas(true);
 });
