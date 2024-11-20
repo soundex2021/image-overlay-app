@@ -3,17 +3,13 @@ let isDragging = false;
 let isResizing = false;
 let filterX = 100; // Initial position of filter
 let filterY = 100;
-let filterWidth = 150; // Initial width of the filter
-let filterHeight = 150; // Initial height of the filter
+let filterWidth = 150;
+let filterHeight = 150;
 let uploadedImage = null;
-let filterAspectRatio = 1; // Aspect ratio of the filter
 
 // Canvas and context
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
-// Prevent touch events from scrolling the page
-canvas.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
 
 // Upload and draw the base image
 document.getElementById("upload").addEventListener("change", function (event) {
@@ -47,87 +43,68 @@ function drawCanvas() {
     const filter = new Image();
     filter.src = "filter.png"; // Ensure this matches the actual filename of your PNG filter
     filter.onload = () => {
-        // Maintain aspect ratio for the filter
-        filterAspectRatio = filter.naturalWidth / filter.naturalHeight;
-        ctx.drawImage(filter, filterX, filterY, filterWidth, filterWidth / filterAspectRatio);
+        ctx.drawImage(filter, filterX, filterY, filterWidth, filterHeight);
 
         // Draw resize handle (optional: visual indicator for resizing)
         ctx.fillStyle = "red";
-        ctx.fillRect(filterX + filterWidth - 10, filterY + (filterWidth / filterAspectRatio) - 10, 10, 10);
+        ctx.fillRect(filterX + filterWidth - 10, filterY + filterHeight - 10, 10, 10);
     };
 }
 
-// Event handler for starting drag or resize
-function startAction(event) {
+// Mouse events for drag-and-resize functionality
+canvas.addEventListener("mousedown", (event) => {
     const rect = canvas.getBoundingClientRect();
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-    const mouseX = clientX - rect.left;
-    const mouseY = clientY - rect.top;
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
 
-    // Check if touch/mouse is on the resize handle
+    // Check if mouse is on the resize handle
     if (
         mouseX > filterX + filterWidth - 10 &&
         mouseX < filterX + filterWidth &&
-        mouseY > filterY + (filterWidth / filterAspectRatio) - 10 &&
-        mouseY < filterY + (filterWidth / filterAspectRatio)
+        mouseY > filterY + filterHeight - 10 &&
+        mouseY < filterY + filterHeight
     ) {
         isResizing = true;
     }
-    // Check if touch/mouse is inside the filter for dragging
+    // Check if mouse is inside the filter for dragging
     else if (
         mouseX > filterX &&
         mouseX < filterX + filterWidth &&
         mouseY > filterY &&
-        mouseY < filterY + (filterWidth / filterAspectRatio)
+        mouseY < filterY + filterHeight
     ) {
         isDragging = true;
     }
-}
+});
 
-// Event handler for dragging or resizing
-function moveAction(event) {
+canvas.addEventListener("mousemove", (event) => {
     if (isDragging || isResizing) {
         const rect = canvas.getBoundingClientRect();
-        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-        const mouseX = clientX - rect.left;
-        const mouseY = clientY - rect.top;
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
 
         if (isDragging) {
-            // Move the filter based on touch/mouse position
+            // Move the filter based on mouse position
             filterX = mouseX - filterWidth / 2;
-            filterY = mouseY - (filterWidth / filterAspectRatio) / 2;
+            filterY = mouseY - filterHeight / 2;
         } else if (isResizing) {
-            // Resize the filter while maintaining the aspect ratio
-            const newWidth = mouseX - filterX;
-            filterWidth = newWidth > 20 ? newWidth : 20; // Minimum width is 20
-            filterHeight = filterWidth / filterAspectRatio;
+            // Resize the filter based on mouse position
+            filterWidth = mouseX - filterX;
+            filterHeight = mouseY - filterY;
         }
 
         // Redraw the canvas
         drawCanvas();
     }
-}
+});
 
-// Event handler for ending drag or resize
-function endAction() {
+canvas.addEventListener("mouseup", () => {
     isDragging = false;
     isResizing = false;
-}
-
-// Add event listeners for mouse and touch
-canvas.addEventListener("mousedown", startAction);
-canvas.addEventListener("mousemove", moveAction);
-canvas.addEventListener("mouseup", endAction);
-
-canvas.addEventListener("touchstart", startAction);
-canvas.addEventListener("touchmove", moveAction);
-canvas.addEventListener("touchend", endAction);
+});
 
 // Download button functionality
 document.getElementById("download").addEventListener("click", function () {
-    // Ensure the final canvas is exported correctly
     const link = document.createElement("a");
     link.download = "edited-image.png";
     link.href = canvas.toDataURL("image/png");
