@@ -1,107 +1,175 @@
 // Variables for dragging and resizing
 let isDragging = false;
 let isResizing = false;
-let filterX = 50; // Default position
-let filterY = 50;
-let filterWidth = 100;
-let filterHeight = 100;
+let startX = 0; // Start position for drag/resize
+let startY = 0;
+let initialFilterX = 0; // Initial position for drag
+let initialFilterY = 0;
+let filterWidth = 150; // Default width
+let filterHeight = 150; // Default height
+let filterX = 100; // Initial position of filter
+let filterY = 100;
+let uploadedImage = null;
+let filterAspectRatio = 1; // Aspect ratio of the filter
 
-// Add event listeners for image upload
+// Canvas and context
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// Prevent touch events from scrolling the page
+document.body.addEventListener(
+    "touchmove",
+    (event) => {
+        if (isDragging || isResizing) {
+            event.preventDefault();
+        }
+    },
+    { passive: false }
+);
+
+// Upload and draw the base image
 document.getElementById("upload").addEventListener("change", function (event) {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
     const file = event.target.files[0];
-
     if (file) {
         const img = new Image();
         img.onload = () => {
-            // Set canvas size to match the uploaded image
-            canvas.width = img.width;
-            canvas.height = img.height;
+            // Resize the uploaded image to match the canvas dimensions
+            canvas.width = 500; // Match your PNG overlay width
+            canvas.height = 500; // Match your PNG overlay height
 
-            // Draw the uploaded image
-            ctx.drawImage(img, 0, 0);
-
-            // Draw the filter
-            drawCanvas(ctx, img);
+            uploadedImage = img;
+            drawCanvas();
         };
         img.src = URL.createObjectURL(file);
     }
 });
 
 // Function to redraw the canvas
-function drawCanvas(ctx, img) {
-    // Clear canvas
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+function drawCanvas(showHandle = true) {
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Redraw uploaded image
-    ctx.drawImage(img, 0, 0);
+    // Draw the uploaded image resized to fit the canvas
+    if (uploadedImage) {
+        ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+    }
 
-    // Load and draw the filter
+    // Draw the PNG overlay
     const filter = new Image();
-    filter.src = "filter.png";
+    filter.src = "filter.png"; // Ensure this matches the actual filename of your PNG filter
     filter.onload = () => {
-        ctx.drawImage(filter, filterX, filterY, filterWidth, filterHeight);
+        filterAspectRatio = filter.naturalWidth / filter.naturalHeight;
+        ctx.drawImage(filter, filterX, filterY, filterWidth, filterWidth / filterAspectRatio);
+
+        // Draw resize handle only if showHandle is true
+        if (showHandle) {
+            ctx.fillStyle = "red";
+            ctx.fillRect(filterX + filterWidth - 10, filterY + (filterWidth / filterAspectRatio) - 10, 10, 10);
+        }
     };
 }
 
-// Mouse events for dragging and resizing the filter
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-canvas.addEventListener("mousedown", (event) => {
+// Start drag or resize
+function startAction(event) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    const mouseX = clientX - rect.left;
+    const mouseY = clientY - rect.top;
 
-    // Check if mouse is inside the filter
+    // Save initial positions for smoother movement
+    startX = mouseX;
+    startY = mouseY;
+    initialFilterX = filterX;
+    initialFilterY = filterY;
+
+    // Check if the touch/mouse is on the resize handle
     if (
-        mouseX > filterX &&
-        mouseX < filterX + filterWidth &&
-        mouseY > filterY &&
-        mouseY < filterY + filterHeight
-    ) {
-        isDragging = true;
-    } else if (
         mouseX > filterX + filterWidth - 10 &&
-        mouseX < filterX + filterWidth + 10 &&
-        mouseY > filterY + filterHeight - 10 &&
-        mouseY < filterY + filterHeight + 10
+        mouseX < filterX + filterWidth &&
+        mouseY > filterY + (filterWidth / filterAspectRatio) - 10 &&
+        mouseY < filterY + (filterWidth / filterAspectRatio)
     ) {
         isResizing = true;
     }
-});
+    // Check if the touch/mouse is inside the filter
+    else if (
+        mouseX > filterX &&
+        mouseX < filterX + filterWidth &&
+        mouseY > filterY &&
+        mouseY < filterY + (filterWidth / filterAspectRatio)
+    ) {
+        isDragging = true;
+    }
 
-canvas.addEventListener("mousemove", (event) => {
+    event.preventDefault(); // Prevent unwanted scrolling
+    event.stopPropagation(); // Prevent bubbling
+}
+
+// Drag or resize
+function moveAction(event) {
     if (isDragging || isResizing) {
         const rect = canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        const mouseX = clientX - rect.left;
+        const mouseY = clientY - rect.top;
 
         if (isDragging) {
-            filterX = mouseX - filterWidth / 2;
-            filterY = mouseY - filterHeight / 2;
+            // Calculate new position for dragging
+            filterX = initialFilterX + (mouseX - startX);
+            filterY = initialFilterY + (mouseY - startY);
         } else if (isResizing) {
-            filterWidth = mouseX - filterX;
-            filterHeight = mouseY - filterY;
+            // Resize while maintaining the aspect ratio
+            const newWidth = mouseX - filterX;
+            filterWidth = newWidth > 20 ? newWidth : 20; // Minimum size of 20px
+            filterHeight = filterWidth / filterAspectRatio;
         }
 
-        // Redraw canvas
-        const img = new Image();
-        img.src = canvas.toDataURL(); // Use current canvas content
-        img.onload = () => drawCanvas(ctx, img);
-    }
-});
+        // Redraw the canvas
+        drawCanvas();
 
-canvas.addEventListener("mouseup", () => {
+        event.preventDefault(); // Prevent unwanted scrolling
+        event.stopPropagation(); // Prevent bubbling
+    }
+}
+
+// End drag or resize
+function endAction(event) {
     isDragging = false;
     isResizing = false;
+    event.stopPropagation(); // Prevent bubbling
+}
+
+// Add event listeners for mouse and touch
+canvas.addEventListener("mousedown", startAction);
+canvas.addEventListener("mousemove", moveAction);
+canvas.addEventListener("mouseup", endAction);
+
+canvas.addEventListener("touchstart", (event) => {
+    event.stopPropagation();
+    startAction(event);
+});
+canvas.addEventListener("touchmove", (event) => {
+    event.stopPropagation();
+    moveAction(event);
+});
+canvas.addEventListener("touchend", (event) => {
+    event.stopPropagation();
+    endAction(event);
 });
 
 // Download button functionality
 document.getElementById("download").addEventListener("click", function () {
+    // Temporarily redraw the canvas without the resize handle
+    drawCanvas(false);
+
+    // Export the canvas content as an image
     const link = document.createElement("a");
     link.download = "edited-image.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
+
+    // Restore the canvas with the resize handle for further editing
+    drawCanvas(true);
 });
