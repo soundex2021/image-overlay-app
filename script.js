@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 
 let uploadedImage = null;
 let overlayImage = new Image();
-overlayImage.src = './overlay.png'; // Overlay image in the root folder
+overlayImage.src = 'https://via.placeholder.com/400x200.png?text=Overlay'; // Placeholder image
 let overlayPos = { x: canvas.width / 2, y: canvas.height / 2 };
 let overlayScale = 0.5; // Starts at 50% size
 let overlayRotation = 0;
@@ -12,7 +12,7 @@ let overlayRotation = 0;
 function resizeAndFitImage(img) {
   const canvasAspect = canvas.width / canvas.height;
   const imgAspect = img.width / img.height;
-  
+
   let width, height;
 
   if (imgAspect > canvasAspect) {
@@ -31,79 +31,35 @@ function resizeAndFitImage(img) {
 
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   if (uploadedImage) {
     resizeAndFitImage(uploadedImage);
   }
-
-  if (overlayImage) {
-    const overlayWidth = canvas.width * overlayScale;
-    const overlayHeight = overlayImage.height * (overlayWidth / overlayImage.width);
-
-    ctx.save();
-    ctx.translate(overlayPos.x, overlayPos.y);
-    ctx.rotate((overlayRotation * Math.PI) / 180);
-    ctx.drawImage(
-      overlayImage,
-      -overlayWidth / 2,
-      -overlayHeight / 2,
-      overlayWidth,
-      overlayHeight
-    );
-    ctx.restore();
-  }
+  ctx.save();
+  ctx.translate(overlayPos.x, overlayPos.y);
+  ctx.rotate((overlayRotation * Math.PI) / 180);
+  ctx.drawImage(
+    overlayImage,
+    -overlayImage.width * overlayScale * 0.5,
+    -overlayImage.height * overlayScale * 0.5,
+    overlayImage.width * overlayScale,
+    overlayImage.height * overlayScale
+  );
+  ctx.restore();
 }
 
-imageUpload.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        uploadedImage = img;
-        drawCanvas();
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// Overlay controls
-document.getElementById('moveLeft').addEventListener('click', () => {
-  overlayPos.x -= 10;
-  drawCanvas();
-});
-
-document.getElementById('moveRight').addEventListener('click', () => {
-  overlayPos.x += 10;
-  drawCanvas();
-});
-
-document.getElementById('moveUp').addEventListener('click', () => {
-  overlayPos.y -= 10;
-  drawCanvas();
-});
-
-document.getElementById('moveDown').addEventListener('click', () => {
-  overlayPos.y += 10;
-  drawCanvas();
-});
-
-document.getElementById('resizeControl').addEventListener('input', (e) => {
-  overlayScale = parseFloat(e.target.value);
-  drawCanvas();
-});
-
-document.getElementById('rotateControl').addEventListener('click', () => {
-  overlayRotation += 15;
-  drawCanvas();
-});
-
+// Download functionality with error handling
 document.getElementById('download').addEventListener('click', () => {
-  const link = document.createElement('a');
-  link.download = 'filtered-image.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  try {
+    drawCanvas(); // Ensure canvas is updated before generating download URL
+
+    const link = document.createElement('a');
+    link.download = 'filtered-image.png';
+    link.href = canvas.toDataURL('image/png');
+
+    // Trigger download
+    link.click();
+  } catch (error) {
+    alert('An error occurred while downloading the image: ' + error.message);
+    console.error('Download error:', error);
+  }
 });
