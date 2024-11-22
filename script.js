@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 
 let uploadedImage = null;
 let overlayImage = new Image();
-overlayImage.src = 'https://via.placeholder.com/400x200.png?text=Overlay'; // Placeholder with 50% scale
+overlayImage.src = './overlay.png'; // Placeholder with 50% scale
 let overlayPos = { x: canvas.width / 2, y: canvas.height / 2 };
 let overlayScale = 0.5; // Starts at 50%
 let overlayRotation = 0;
