@@ -1,13 +1,12 @@
-
 const imageUpload = document.getElementById('imageUpload');
 const canvas = document.getElementById('imageCanvas');
 const ctx = canvas.getContext('2d');
 
 let uploadedImage = null;
 let overlayImage = new Image();
-overlayImage.src = './overlay.png'; // Your custom overlay
+overlayImage.src = 'https://via.placeholder.com/400x200.png?text=Overlay'; // Placeholder with 50% scale
 let overlayPos = { x: canvas.width / 2, y: canvas.height / 2 };
-let overlayScale = 0.8; // Reduced by 20%
+let overlayScale = 0.5; // Starts at 50%
 let overlayRotation = 0;
 
 function resizeAndFitImage(img) {
