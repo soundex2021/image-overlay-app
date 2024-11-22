@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 
 let uploadedImage = null;
 let overlayImage = new Image();
-overlayImage.src = 'https://via.placeholder.com/400x200.png?text=Overlay'; // Placeholder image
+overlayImage.src = './overlay.png'; // Overlay image in the root folder
 let overlayPos = { x: canvas.width / 2, y: canvas.height / 2 };
 let overlayScale = 0.5; // Starts at 50% size
 let overlayRotation = 0;
@@ -12,7 +12,7 @@ let overlayRotation = 0;
 function resizeAndFitImage(img) {
   const canvasAspect = canvas.width / canvas.height;
   const imgAspect = img.width / img.height;
-
+  
   let width, height;
 
   if (imgAspect > canvasAspect) {
@@ -52,18 +52,6 @@ function drawCanvas() {
     );
     ctx.restore();
   }
-
-  // Add watermark with drop shadow
-  ctx.save();
-  ctx.font = '16px Arial'; // Font size and style
-  ctx.fillStyle = 'white'; // Text color
-  ctx.shadowColor = 'black'; // Shadow color
-  ctx.shadowBlur = 4;       // Shadow blur effect
-  ctx.shadowOffsetX = 2;    // Shadow horizontal offset
-  ctx.shadowOffsetY = 2;    // Shadow vertical offset
-  ctx.textAlign = 'right';  // Align text to the right
-  ctx.fillText('BAYOMIES.COM', canvas.width - 10, canvas.height - 10); // Draw the text
-  ctx.restore();
 }
 
 imageUpload.addEventListener('change', (e) => {
@@ -108,23 +96,14 @@ document.getElementById('resizeControl').addEventListener('input', (e) => {
   drawCanvas();
 });
 
-document.getElementById('rotateClockwise').addEventListener('click', () => {
+document.getElementById('rotateControl').addEventListener('click', () => {
   overlayRotation += 15;
   drawCanvas();
 });
 
-document.getElementById('rotateCounterClockwise').addEventListener('click', () => {
-  overlayRotation -= 15;
-  drawCanvas();
-});
-
 document.getElementById('download').addEventListener('click', () => {
-  drawCanvas(); // Ensure watermark is added before generating download URL
-
   const link = document.createElement('a');
   link.download = 'filtered-image.png';
   link.href = canvas.toDataURL('image/png');
-
-  // Simulate click to trigger download
   link.click();
 });
