@@ -33,6 +33,19 @@ function resizeAndFitImage(img) {
   ctx.drawImage(img, offsetX, offsetY, width, height);
 }
 
+function drawWatermark() {
+  ctx.save();
+  ctx.font = '16px Arial';
+  ctx.fillStyle = 'white';
+  ctx.shadowColor = 'black';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.textAlign = 'right';
+  ctx.fillText('bayomies.com', canvas.width - 10, canvas.height - 10);
+  ctx.restore();
+}
+
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -58,6 +71,8 @@ function drawCanvas() {
   } else {
     console.error('Overlay image is not loaded correctly.');
   }
+
+  drawWatermark();
 }
 
 imageUpload.addEventListener('change', (e) => {
