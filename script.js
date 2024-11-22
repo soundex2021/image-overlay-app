@@ -42,7 +42,7 @@ function drawWatermark() {
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
   ctx.textAlign = 'right';
-  ctx.fillText('Bayomies.com', canvas.width - 10, canvas.height - 10);
+  ctx.fillText('bayomies.com', canvas.width - 10, canvas.height - 10);
   ctx.restore();
 }
 
@@ -127,10 +127,13 @@ document.getElementById('rotateCounterClockwise').addEventListener('click', () =
 });
 
 document.getElementById('download').addEventListener('click', () => {
-  drawCanvas();
+  drawCanvas(); // Ensure the canvas is rendered correctly
 
-  const link = document.createElement('a');
-  link.download = 'Bayomies.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  const link = document.createElement('a'); // Create a hidden <a> element
+  const uniqueNumber = Math.floor(10000 + Math.random() * 90000); // Generate a random 5-digit number
+  const prefix = 'Bayomies'; // Set your desired prefix
+
+  link.download = `${prefix} #${uniqueNumber}.png`; // Combine prefix with unique number
+  link.href = canvas.toDataURL('image/png'); // Assign the canvas data URL to href
+  link.click(); // Trigger the download
 });
