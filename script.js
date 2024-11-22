@@ -130,7 +130,7 @@ document.getElementById('download').addEventListener('click', () => {
   drawCanvas();
 
   const link = document.createElement('a');
-  link.download = 'filtered-image.png';
+  link.download = 'Bayomies.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 });
