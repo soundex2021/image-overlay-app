@@ -42,7 +42,7 @@ function drawWatermark() {
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
   ctx.textAlign = 'right';
-  ctx.fillText('bayomies.com', canvas.width - 10, canvas.height - 10);
+  ctx.fillText('Bayomies.com', canvas.width - 10, canvas.height - 10);
   ctx.restore();
 }
 
