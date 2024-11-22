@@ -14,20 +14,21 @@
   <main class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
     <input type="file" id="imageUpload" accept="image/*" class="mb-4 block w-full">
     <canvas id="imageCanvas" class="border mb-4 w-full" width="400" height="400"></canvas>
-    <div class="grid grid-cols-3 gap-2 mb-4">
+    <div class="grid grid-cols-4 gap-2 mb-4">
       <button id="moveLeft" class="btn">⬅️</button>
       <button id="moveUp" class="btn">⬆️</button>
-      <button id="moveRight" class="btn">➡️</button>
       <button id="moveDown" class="btn">⬇️</button>
+      <button id="moveRight" class="btn">➡️</button>
     </div>
-    <div class="flex justify-between mb-4">
-      <label>
-        Resize:
-        <input type="range" id="resizeControl" min="0.1" max="1" step="0.1" value="0.5">
-      </label>
-      <button id="rotateControl" class="btn">↻ Rotate</button>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <button id="rotateClockwise" class="btn">↻</button>
+      <button id="rotateCounterClockwise" class="btn">↺</button>
     </div>
-    <button id="download" class="bg-blue-500 text-white rounded px-4 py-2">Download Image</button>
+    <div class="mb-4">
+      <label class="block mb-2">Resize:</label>
+      <input type="range" id="resizeControl" min="0.1" max="1" step="0.1" value="0.5" class="w-full">
+    </div>
+    <button id="download" class="bg-blue-500 text-white rounded px-4 py-2 w-full">Download Image</button>
   </main>
 
   <style>

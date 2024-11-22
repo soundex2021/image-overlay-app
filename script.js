@@ -4,15 +4,19 @@ const ctx = canvas.getContext('2d');
 
 let uploadedImage = null;
 let overlayImage = new Image();
-overlayImage.src = 'https://via.placeholder.com/400x200.png?text=Overlay'; // Placeholder with 50% scale
+overlayImage.src = './overlay.png';
+overlayImage.onerror = function () {
+  alert('Failed to load overlay image. Please check the file path.');
+};
+
 let overlayPos = { x: canvas.width / 2, y: canvas.height / 2 };
-let overlayScale = 0.5; // Starts at 50%
+let overlayScale = 0.5;
 let overlayRotation = 0;
 
 function resizeAndFitImage(img) {
   const canvasAspect = canvas.width / canvas.height;
   const imgAspect = img.width / img.height;
-  
+
   let width, height;
 
   if (imgAspect > canvasAspect) {
@@ -36,7 +40,7 @@ function drawCanvas() {
     resizeAndFitImage(uploadedImage);
   }
 
-  if (overlayImage) {
+  if (overlayImage.complete && overlayImage.naturalWidth > 0) {
     const overlayWidth = canvas.width * overlayScale;
     const overlayHeight = overlayImage.height * (overlayWidth / overlayImage.width);
 
@@ -51,6 +55,8 @@ function drawCanvas() {
       overlayHeight
     );
     ctx.restore();
+  } else {
+    console.error('Overlay image is not loaded correctly.');
   }
 }
 
@@ -70,7 +76,6 @@ imageUpload.addEventListener('change', (e) => {
   }
 });
 
-// Overlay controls
 document.getElementById('moveLeft').addEventListener('click', () => {
   overlayPos.x -= 10;
   drawCanvas();
@@ -96,12 +101,19 @@ document.getElementById('resizeControl').addEventListener('input', (e) => {
   drawCanvas();
 });
 
-document.getElementById('rotateControl').addEventListener('click', () => {
+document.getElementById('rotateClockwise').addEventListener('click', () => {
   overlayRotation += 15;
   drawCanvas();
 });
 
+document.getElementById('rotateCounterClockwise').addEventListener('click', () => {
+  overlayRotation -= 15;
+  drawCanvas();
+});
+
 document.getElementById('download').addEventListener('click', () => {
+  drawCanvas();
+
   const link = document.createElement('a');
   link.download = 'filtered-image.png';
   link.href = canvas.toDataURL('image/png');
