@@ -4,9 +4,9 @@ const ctx = canvas.getContext('2d');
 
 let uploadedImage = null;
 let overlayImage = new Image();
-overlayImage.src = './overlay.png'; // Placeholder with 50% scale
+overlayImage.src = './overlay.png'; // Overlay image in the root folder
 let overlayPos = { x: canvas.width / 2, y: canvas.height / 2 };
-let overlayScale = 0.5; // Starts at 50%
+let overlayScale = 0.5; // Starts at 50% size
 let overlayRotation = 0;
 
 function resizeAndFitImage(img) {
