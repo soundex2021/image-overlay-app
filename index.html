@@ -3,53 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Filter & Meme Creator</title>
+  <title>Image Filter App</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
   <header class="text-center mb-6">
-    <h1 class="text-2xl font-bold">Meme Creator</h1>
+    <h1 class="text-2xl font-bold">Image Filter App</h1>
   </header>
 
   <main class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
     <input type="file" id="imageUpload" accept="image/*" class="mb-4 block w-full">
     <canvas id="imageCanvas" class="border mb-4 w-full" width="400" height="400"></canvas>
-
-    <!-- Overlay Commands -->
-    <section class="mb-6">
-      <h2 class="font-semibold mb-2">Overlay Controls</h2>
-      <div class="grid grid-cols-4 gap-2 mb-4">
-        <button id="overlayMoveLeft" class="btn">⬅️</button>
-        <button id="overlayMoveUp" class="btn">⬆️</button>
-        <button id="overlayMoveDown" class="btn">⬇️</button>
-        <button id="overlayMoveRight" class="btn">➡️</button>
-      </div>
-      <div class="grid grid-cols-2 gap-2 mb-4">
-        <button id="overlayRotateClockwise" class="btn">↻</button>
-        <button id="overlayRotateCounterClockwise" class="btn">↺</button>
-      </div>
-      <div class="mb-4">
-        <label class="block mb-2">Resize Overlay:</label>
-        <input type="range" id="overlayResize" min="0.1" max="1" step="0.1" value="0.5" class="w-full">
-      </div>
-    </section>
-
-    <!-- Text Commands -->
-    <section class="mb-6">
-      <h2 class="font-semibold mb-2">Text Controls</h2>
-      <div class="mb-4">
-        <label for="memeText" class="block mb-2">Enter Text:</label>
-        <input type="text" id="memeText" class="border rounded w-full p-2" placeholder="Enter meme text...">
-      </div>
-      <div class="grid grid-cols-4 gap-2 mb-4">
-        <button id="textMoveUp" class="btn">⬆️</button>
-        <button id="textMoveDown" class="btn">⬇️</button>
-        <button id="textWhite" class="btn">White</button>
-        <button id="textBlack" class="btn">Black</button>
-      </div>
-    </section>
-
-    <button id="download" class="bg-blue-500 text-white rounded px-4 py-2 w-full">Download Meme</button>
+    <div class="grid grid-cols-4 gap-2 mb-4">
+      <button id="moveLeft" class="btn">⬅️</button>
+      <button id="moveUp" class="btn">⬆️</button>
+      <button id="moveDown" class="btn">⬇️</button>
+      <button id="moveRight" class="btn">➡️</button>
+    </div>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <button id="rotateClockwise" class="btn">↻</button>
+      <button id="rotateCounterClockwise" class="btn">↺</button>
+    </div>
+    <div class="mb-4">
+      <label class="block mb-2">Resize:</label>
+      <input type="range" id="resizeControl" min="0.1" max="1" step="0.1" value="0.5" class="w-full">
+    </div>
+    <button id="download" class="bg-blue-500 text-white rounded px-4 py-2 w-full">Download Image</button>
   </main>
 
   <style>
